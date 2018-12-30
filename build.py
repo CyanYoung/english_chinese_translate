@@ -85,13 +85,13 @@ def get_metric(model, loss_func, triples):
     return loss, acc, num
 
 
-def batch_train(model, loss_func, optimizer, loader, detail):
+def batch_train(model, loss_func, optim, loader, detail):
     total_loss, total_acc, total_num = [0] * 3
     for step, triples in enumerate(loader):
         batch_loss, batch_acc, batch_num = get_metric(model, loss_func, triples)
-        optimizer.zero_grad()
+        optim.zero_grad()
         batch_loss.backward()
-        optimizer.step()
+        optim.step()
         total_loss = total_loss + batch_loss.item()
         total_acc, total_num = total_acc + batch_acc, total_num + batch_num
         if detail:
@@ -124,9 +124,9 @@ def fit(name, max_epoch, en_embed_mat, zh_embed_mat, path_feats, detail):
     while train and epoch < max_epoch:
         epoch = epoch + 1
         model.train()
-        optimizer = Adam(model.parameters(), lr=learn_rate)
+        optim = Adam(model.parameters(), lr=learn_rate)
         start = time.time()
-        train_loss, train_acc = batch_train(model, loss_func, optimizer, train_loader, detail)
+        train_loss, train_acc = batch_train(model, loss_func, optim, train_loader, detail)
         delta = time.time() - start
         with torch.no_grad():
             model.eval()
