@@ -21,7 +21,6 @@ class S2S(nn.Module):
         x = self.en_embed(x)
         y = self.zh_embed(y)
         h1, h1_n = self.encode(x)
-        del h1
         h2, h2_n = self.decode(y, h1_n)
         return self.dl(h2)
 
@@ -36,7 +35,6 @@ class S2SEncode(nn.Module):
     def forward(self, x):
         x = self.en_embed(x)
         h1, h1_n = self.encode(x)
-        del h1
         return h1_n
 
 
