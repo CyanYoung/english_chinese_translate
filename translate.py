@@ -12,9 +12,9 @@ from preprocess import clean
 
 from represent import sent2ind
 
-from nn_arch import S2SEncode, S2SDecode, AttEncode, AttDecode, AttPlot
+from nn_arch import S2SEncode, S2SDecode, AttEncode, AttDecode, AttCore
 
-from util import map_item
+from util import trunc, map_item
 
 
 plt.rcParams['axes.unicode_minus'] = False
@@ -28,23 +28,12 @@ def load_model(name, embed_mat, device, mode):
     arch = map_item('_'.join([name, mode]), archs)
     part = arch(embed_mat).to(device)
     part_dict = part.state_dict()
-    part_dict = {key: val for key, val in full_dict.items() if key in part_dict}
-    part_dict.update(part_dict)
+    for key, val in full_dict.items():
+        key = trunc(key, num=1)
+        if key in part_dict:
+            part_dict[key] = val
     part.load_state_dict(part_dict)
     return part
-
-
-def load_plot(name, en_embed_mat, zh_embed_mat, device):
-    en_embed_mat, zh_embed_mat = torch.Tensor(en_embed_mat), torch.Tensor(zh_embed_mat)
-    model = torch.load(map_item(name, paths), map_location=device)
-    full_dict = model.state_dict()
-    arch = map_item(name + '_plot', archs)
-    plot = arch(en_embed_mat, zh_embed_mat).to(device)
-    plot_dict = plot.state_dict()
-    plot_dict = {key: val for key, val in full_dict.items() if key in plot_dict}
-    plot_dict.update(plot_dict)
-    plot.load_state_dict(plot_dict)
-    return plot
 
 
 def ind2word(word_inds):
@@ -143,7 +132,7 @@ archs = {'s2s_encode': S2SEncode,
          's2s_decode': S2SDecode,
          'att_encode': AttEncode,
          'att_decode': AttDecode,
-         'att_plot': AttPlot}
+         'att_core': AttCore}
 
 paths = {'s2s': 'model/rnn_s2s.pkl',
          'att': 'model/rnn_att.pkl'}
@@ -152,7 +141,7 @@ models = {'s2s_encode': load_model('s2s', en_embed_mat, device, 'encode'),
           's2s_decode': load_model('s2s', zh_embed_mat, device, 'decode'),
           'att_encode': load_model('att', en_embed_mat, device, 'encode'),
           'att_decode': load_model('att', zh_embed_mat, device, 'decode'),
-          'att_plot': load_plot('att', en_embed_mat, zh_embed_mat, device)}
+          'att_core': load_model('att', zh_embed_mat, device, 'core')}
 
 
 def plot_att(en_words, zh_text, atts):
@@ -186,8 +175,8 @@ def predict(text, name):
             zh_text = bos + zh_pred
             zh_pad_seq = sent2ind(zh_text, zh_word_inds, seq_len, 'post', keep_oov=True)
             zh_sent = torch.LongTensor([zh_pad_seq]).to(device)
-            plot = map_item(name + '_plot', models)
-            atts = plot(en_sent, zh_sent)[0]
+            core = map_item(name + '_core', models)
+            atts = core(zh_sent, state)[0]
             plot_att(en_words[:-1], zh_text[1:] + eos, atts)
         return zh_pred
 
