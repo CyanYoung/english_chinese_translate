@@ -21,6 +21,7 @@ def save(path, pairs):
 
 
 def clean(text, lang):
+    text = text.strip().lower()
     text = re.sub(stop_word_re, '', text)
     if lang == 'zh':
         return text
@@ -35,7 +36,7 @@ def prepare(path_univ, path_train, path_dev, path_test):
         for count, line in enumerate(f):
             en_text, zh_text = line.strip().split('\t')
             en_text, zh_text = clean(en_text, 'en'), clean(zh_text, 'zh')
-            pairs.append((en_text.lower(), zh_text))
+            pairs.append((en_text, zh_text))
             if count > max_num:
                 break
     shuffle(pairs)
