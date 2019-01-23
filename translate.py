@@ -14,7 +14,7 @@ from represent import sent2ind
 
 from nn_arch import S2SEncode, S2SDecode, AttEncode, AttDecode, AttCore
 
-from util import trunc, map_item
+from util import map_item
 
 
 plt.rcParams['axes.unicode_minus'] = False
@@ -29,7 +29,7 @@ def load_model(name, embed_mat, device, mode):
     part = arch(embed_mat).to(device)
     part_dict = part.state_dict()
     for key, val in full_dict.items():
-        key = trunc(key, num=1)
+        key = '.'.join(key.split('.')[1:])
         if key in part_dict:
             part_dict[key] = val
     part.load_state_dict(part_dict)
