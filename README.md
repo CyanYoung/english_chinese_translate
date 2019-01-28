@@ -10,7 +10,7 @@ add_flag() 添加控制符，shift() 对 zh_text 分别删去 bos、eos 得到 z
 
 tokenize() 分别通过 en_sent、flag_zh_text 建立词索引，构造 embed_mat
 
-align() 对训练数据 en_sent 头部，zh_sent、label 尾部，填充或截取为定长序列
+align() 对非测试数据 en_sent 头部，zh_sent、label 尾部，填充或截取为定长序列
 
 #### 3.build
 
