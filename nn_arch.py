@@ -20,7 +20,7 @@ class S2SEncode(nn.Module):
     def __init__(self, en_embed_mat):
         super(S2SEncode, self).__init__()
         en_vocab_num, en_embed_len = en_embed_mat.size()
-        self.en_embed = nn.Embedding(en_vocab_num, en_embed_len)
+        self.en_embed = nn.Embedding(en_vocab_num, en_embed_len, _weight=en_embed_mat)
         self.encode = nn.GRU(en_embed_len, 200, batch_first=True)
 
     def forward(self, x):
@@ -33,7 +33,7 @@ class S2SDecode(nn.Module):
     def __init__(self, zh_embed_mat):
         super(S2SDecode, self).__init__()
         zh_vocab_num, zh_embed_len = zh_embed_mat.size()
-        self.zh_embed = nn.Embedding(zh_vocab_num, zh_embed_len)
+        self.zh_embed = nn.Embedding(zh_vocab_num, zh_embed_len, _weight=zh_embed_mat)
         self.decode = nn.GRU(zh_embed_len, 200, batch_first=True)
         self.dl = nn.Sequential(nn.Dropout(0.2),
                                 nn.Linear(200, zh_vocab_num))
@@ -59,7 +59,7 @@ class AttEncode(nn.Module):
     def __init__(self, en_embed_mat):
         super(AttEncode, self).__init__()
         en_vocab_num, en_embed_len = en_embed_mat.size()
-        self.en_embed = nn.Embedding(en_vocab_num, en_embed_len)
+        self.en_embed = nn.Embedding(en_vocab_num, en_embed_len, _weight=en_embed_mat)
         self.encode = nn.GRU(en_embed_len, 200, batch_first=True)
 
     def forward(self, x):
@@ -72,7 +72,7 @@ class AttDecode(nn.Module):
     def __init__(self, zh_embed_mat):
         super(AttDecode, self).__init__()
         zh_vocab_num, zh_embed_len = zh_embed_mat.size()
-        self.zh_embed = nn.Embedding(zh_vocab_num, zh_embed_len)
+        self.zh_embed = nn.Embedding(zh_vocab_num, zh_embed_len, _weight=zh_embed_mat)
         self.decode = nn.GRU(zh_embed_len, 200, batch_first=True)
         self.qry = nn.Linear(200, 200)
         self.key = nn.Linear(200, 200)
@@ -97,7 +97,7 @@ class AttCore(nn.Module):
     def __init__(self, zh_embed_mat):
         super(AttCore, self).__init__()
         zh_vocab_num, zh_embed_len = zh_embed_mat.size()
-        self.zh_embed = nn.Embedding(zh_vocab_num, zh_embed_len)
+        self.zh_embed = nn.Embedding(zh_vocab_num, zh_embed_len, _weight=zh_embed_mat)
         self.decode = nn.GRU(zh_embed_len, 200, batch_first=True)
         self.qry = nn.Linear(200, 200)
         self.key = nn.Linear(200, 200)
